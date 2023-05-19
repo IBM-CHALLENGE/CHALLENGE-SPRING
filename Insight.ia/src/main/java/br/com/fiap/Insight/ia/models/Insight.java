@@ -1,42 +1,45 @@
 package br.com.fiap.Insight.ia.models;
 
 
-
+import org.springframework.hateoas.EntityModel;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import org.springframework.hateoas.EntityModel;
 
-import br.com.fiap.Insight.ia.controllers.AnuncioController;
+import br.com.fiap.Insight.ia.controllers.InsightController;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Anuncio {
-
+@Entity
+public class Insight {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    
-    @NotEmpty
-    private String descricao;
 
+    @NotBlank
+    private String conteudo;
 
-    public EntityModel<Anuncio> toEntityModel(){
+    @NotBlank
+    private String imagem;
+
+    public EntityModel<Insight> toEntityModel(){
         return EntityModel.of(
             this, 
-            linkTo(methodOn(AnuncioController.class).show(id)).withSelfRel(),
-            linkTo(methodOn(AnuncioController.class).destroy(id)).withRel("delete"))
-            ;
+            linkTo(methodOn(InsightController.class).show(id)).withSelfRel(),
+            linkTo(methodOn(InsightController.class).destroy(id)).withRel("delete"));
+            //linkTo(methodOn(InsightController.class)).index(Pageable.unpaged())).withRel("all");
     }
+
+    
 
 }

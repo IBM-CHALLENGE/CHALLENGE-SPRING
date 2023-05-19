@@ -27,7 +27,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-
 public class Transacao {
     
     @Id

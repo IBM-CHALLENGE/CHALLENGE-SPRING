@@ -13,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.domain.Pageable;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
