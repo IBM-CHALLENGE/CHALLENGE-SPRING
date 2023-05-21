@@ -1,7 +1,5 @@
 package br.com.fiap.Insight.ia.controllers;
 
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,34 +23,34 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("api/usuario")
 public class UsuarioController {
-    
+
     Logger log = LoggerFactory.getLogger(UsuarioController.class);
 
     @Autowired
     UsuarioRepository repository;
 
     @Autowired
-     PagedResourcesAssembler<Object> assembler;
+    PagedResourcesAssembler<Object> assembler;
 
-     @PostMapping
-        public ResponseEntity<EntityModel<Usuario>> create(@RequestBody @Valid Usuario usuario){
+    @PostMapping()
+    public ResponseEntity<EntityModel<Usuario>> create(@RequestBody @Valid Usuario usuario) {
         log.info("Cadastrando usuario" + usuario);
         repository.save(usuario);
 
         return ResponseEntity
-            .created(usuario.toEntityModel().getRequiredLink("self").toUri())
-            .body(usuario.toEntityModel());
-        }
+                .created(usuario.toEntityModel().getRequiredLink("self").toUri())
+                .body(usuario.toEntityModel());
+    }
 
     @GetMapping("{id}")
-    public EntityModel<Usuario> show(@PathVariable Integer id){
+    public EntityModel<Usuario> show(@PathVariable Integer id) {
         log.info("Buscando tarefa com id " + id);
         return getUsuario(id).toEntityModel();
 
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Usuario> destroy(@PathVariable Integer id){
+    public ResponseEntity<Usuario> destroy(@PathVariable Integer id) {
         log.info("Apagando usuario com id " + id);
         var Usuario = getUsuario(id);
 
@@ -62,9 +60,8 @@ public class UsuarioController {
 
     }
 
-
     @PutMapping("{id}")
-    public EntityModel<Usuario> update(@PathVariable Integer id, @RequestBody @Valid Usuario usuario){
+    public EntityModel<Usuario> update(@PathVariable Integer id, @RequestBody @Valid Usuario usuario) {
         log.info("Atualizando usuario com id " + id);
         getUsuario(id);
         usuario.setId(id);
@@ -74,11 +71,8 @@ public class UsuarioController {
 
     }
 
-
-
     private Usuario getUsuario(Integer id) {
         return repository.findById(id).orElseThrow(() -> new RestNotFoundException("Usuario não encontrada"));
     }
-    
-    }//class
 
+}// class

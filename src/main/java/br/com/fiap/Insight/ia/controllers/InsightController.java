@@ -32,27 +32,27 @@ public class InsightController {
     @Autowired
     PagedResourcesAssembler<Object> assembler;
 
-    //@GetMapping
-    //    public PagedModel<EntityModel<Object>> index(@PageableDefault(size = 5) org.springframework.data.domain.Pageable pageable){
-    //      var insights = repository.findAll(pageable);
+    // @GetMapping
+    // public PagedModel<EntityModel<Object>> index(@PageableDefault(size = 5)
+    // org.springframework.data.domain.Pageable pageable){
+    // var insights = repository.findAll(pageable);
 
-    //    return assembler.toModel(insights.map(Insight::toEntityModel));
-//}
+    // return assembler.toModel(insights.map(Insight::toEntityModel));
+    // }
 
     @PostMapping
-        public ResponseEntity<EntityModel<Insight>> create(@RequestBody Insight insight){
+    public ResponseEntity<EntityModel<Insight>> create(@RequestBody Insight insight) {
         log.info("Cadastrando Insight" + insight);
 
         repository.save(insight);
 
         return ResponseEntity
-            .created(insight.toEntityModel().getRequiredLink("self").toUri())
-            .body(insight.toEntityModel());
-        }
+                .created(insight.toEntityModel().getRequiredLink("self").toUri())
+                .body(insight.toEntityModel());
+    }
 
-    
     @GetMapping("{id}")
-    public EntityModel<Insight> show(@PathVariable Integer id){
+    public EntityModel<Insight> show(@PathVariable Integer id) {
         log.info("Buscando Insight com id " + id);
 
         return getinsight(id).toEntityModel();
@@ -60,7 +60,7 @@ public class InsightController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Insight> destroy(@PathVariable Integer id){
+    public ResponseEntity<Insight> destroy(@PathVariable Integer id) {
         log.info("Apagando insight com id " + id);
         var insight = getinsight(id);
 
@@ -70,11 +70,8 @@ public class InsightController {
 
     }
 
-
-        private Insight getinsight (Integer id){
-            return repository.findById(id).orElseThrow(() -> new RestNotFoundException("Insight não encontrado"));
-        }
-
-        
+    private Insight getinsight(Integer id) {
+        return repository.findById(id).orElseThrow(() -> new RestNotFoundException("Insight não encontrado"));
     }
 
+}
