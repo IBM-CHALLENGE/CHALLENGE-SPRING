@@ -27,51 +27,51 @@ public class TransacaoController {
     Logger log = LoggerFactory.getLogger(TransacaoController.class);
 
     @Autowired
-    TransacaoRepository repository; // IoD
+    TransacaoRepository repository;
 
     @Autowired
     PagedResourcesAssembler<Object> assembler;
 
     @GetMapping
-    public PagedModel<EntityModel<Object>>index(@PageableDefault(size = 5) org.springframework.data.domain.Pageable pageable) {
-            var transacoes = repository.findAll(pageable);
+    public PagedModel<EntityModel<Object>> index(
+            @PageableDefault(size = 5) org.springframework.data.domain.Pageable pageable) {
+        var transacoes = repository.findAll(pageable);
 
         return assembler.toModel(transacoes.map(Transacao::toEntityModel));
     }
 
     @PostMapping
-        public ResponseEntity<EntityModel<Transacao>> create(@RequestBody Transacao transacao){
+    public ResponseEntity<EntityModel<Transacao>> create(@RequestBody Transacao transacao) {
         log.info("Cadastrando transacao" + transacao);
 
         repository.save(transacao);
 
         return ResponseEntity
-            .created(transacao.toEntityModel().getRequiredLink("self").toUri())
-            .body(transacao.toEntityModel());
-        }
+                .created(transacao.toEntityModel().getRequiredLink("self").toUri())
+                .body(transacao.toEntityModel());
+    }
 
-        @GetMapping("{id}")
-        public EntityModel<Transacao> show(@PathVariable Integer id){
-            log.info("Buscando transacao com id " + id);
-    
-            
-            return gettransacao(id).toEntityModel();
-    
-        }
+    @GetMapping("{id}")
+    public EntityModel<Transacao> show(@PathVariable Integer id) {
+        log.info("Buscando transacao com id " + id);
+
+        return getTransacao(id).toEntityModel();
+
+    }
 
     @DeleteMapping("{id}")
-        public ResponseEntity<Transacao> destroy(@PathVariable Integer id){
-            log.info("Apagando usuario com id " + id);
-            var transacao = gettransacao(id);
-    
-            repository.delete(transacao);
-    
-            return ResponseEntity.noContent().build();
-    
-        }
+    public ResponseEntity<Transacao> destroy(@PathVariable Integer id) {
+        log.info("Apagando usuario com id " + id);
+        var transacao = getTransacao(id);
 
-        private Transacao gettransacao(Integer id) {
-            return repository.findById(id).orElseThrow(() -> new RestNotFoundException("cadastro não encontrada"));
-        }
-    
+        repository.delete(transacao);
+
+        return ResponseEntity.noContent().build();
+
+    }
+
+    private Transacao getTransacao(Integer id) {
+        return repository.findById(id).orElseThrow(() -> new RestNotFoundException("cadastro não encontrada"));
+    }
+
 }

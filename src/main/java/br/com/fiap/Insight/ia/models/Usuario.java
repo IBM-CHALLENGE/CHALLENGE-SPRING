@@ -65,7 +65,8 @@ public class Usuario {
         return EntityModel.of(
             this, 
             linkTo(methodOn(UsuarioController.class).show(id)).withSelfRel(),
-            linkTo(methodOn(UsuarioController.class).destroy(id)).withRel("delete")
+            linkTo(methodOn(UsuarioController.class).destroy(id)).withRel("delete"),
+            linkTo(methodOn(UsuarioController.class).update(id, this)).withRel("update")
         );
     }
 }

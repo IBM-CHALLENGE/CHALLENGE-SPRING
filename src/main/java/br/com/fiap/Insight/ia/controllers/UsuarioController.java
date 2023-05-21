@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.Insight.ia.exception.RestNotFoundException;
+import br.com.fiap.Insight.ia.models.Status;
 import br.com.fiap.Insight.ia.models.Usuario;
 import br.com.fiap.Insight.ia.repository.UsuarioRepository;
 import jakarta.validation.Valid;
@@ -52,9 +53,10 @@ public class UsuarioController {
     @DeleteMapping("{id}")
     public ResponseEntity<Usuario> destroy(@PathVariable Integer id) {
         log.info("Apagando usuario com id " + id);
-        var Usuario = getUsuario(id);
+        Usuario usuario = getUsuario(id);
+        usuario.setStatus(Status.INATIVO);
 
-        repository.delete(Usuario);
+        repository.save(usuario);
 
         return ResponseEntity.noContent().build();
 
@@ -72,7 +74,10 @@ public class UsuarioController {
     }
 
     private Usuario getUsuario(Integer id) {
-        return repository.findById(id).orElseThrow(() -> new RestNotFoundException("Usuario não encontrada"));
+        return repository
+                .findById(id)
+                .filter(usuario -> usuario.getStatus().equals(Status.ATIVO))
+                .orElseThrow(() -> new RestNotFoundException("Usuario não encontrada"));
     }
 
-}// class
+}

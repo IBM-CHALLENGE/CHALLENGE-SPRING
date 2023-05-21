@@ -18,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,13 +38,14 @@ public class Transacao {
     @NotBlank
     private String titulo;
 
-    @NotBlank
     private String descricao;
 
     @NotEmpty
+    @NotNull
     private Calendar dataCadastro;
 
     @NotEmpty
+    @NotNull
     private Double valor;
 
     @NotEmpty

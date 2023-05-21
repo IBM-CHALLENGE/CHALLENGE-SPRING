@@ -25,7 +25,7 @@ public class AnuncioController {
     Logger log = LoggerFactory.getLogger(AnuncioController.class);
 
     @Autowired
-    AnuncioRepository repository; // IoD
+    AnuncioRepository repository;
 
     @Autowired
     PagedResourcesAssembler<Object> assembler;
@@ -62,14 +62,7 @@ public class AnuncioController {
 
     }
 
-
-
-   
     private Anuncio getanuncio(Integer id){
         return repository.findById(id).orElseThrow(() -> new RestNotFoundException("Anuncio não encontrado"));
     }
-
-    
-
-    
 }
