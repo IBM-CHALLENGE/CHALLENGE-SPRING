@@ -3,6 +3,7 @@ package br.com.fiap.Insight.ia.controllers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.fiap.Insight.ia.exception.RestConflictException;
 import br.com.fiap.Insight.ia.exception.RestNotFoundException;
 import br.com.fiap.Insight.ia.models.Status;
 import br.com.fiap.Insight.ia.models.Usuario;
@@ -35,12 +37,17 @@ public class UsuarioController {
 
     @PostMapping()
     public ResponseEntity<EntityModel<Usuario>> create(@RequestBody @Valid Usuario usuario) {
-        log.info("Cadastrando usuario" + usuario);
-        repository.save(usuario);
+        try {
+            log.info("Cadastrando usuario" + usuario);
+            repository.save(usuario);
 
-        return ResponseEntity
-                .created(usuario.toEntityModel().getRequiredLink("self").toUri())
-                .body(usuario.toEntityModel());
+            return ResponseEntity
+                    .created(usuario.toEntityModel().getRequiredLink("self").toUri())
+                    .body(usuario.toEntityModel());
+
+        } catch (DataIntegrityViolationException e) {
+            throw new RestConflictException("Já existe um usuario com este email");
+        }
     }
 
     @GetMapping("{id}")
@@ -64,12 +71,17 @@ public class UsuarioController {
 
     @PutMapping("{id}")
     public EntityModel<Usuario> update(@PathVariable Integer id, @RequestBody @Valid Usuario usuario) {
-        log.info("Atualizando usuario com id " + id);
-        getUsuario(id);
-        usuario.setId(id);
-        repository.save(usuario);
+        try {
+            log.info("Atualizando usuario com id " + id);
+            getUsuario(id);
+            usuario.setId(id);
+            repository.save(usuario);
 
-        return usuario.toEntityModel();
+            return usuario.toEntityModel();
+
+        } catch (DataIntegrityViolationException e) {
+            throw new RestConflictException("Já existe um usuario com este email");
+        }
 
     }
 

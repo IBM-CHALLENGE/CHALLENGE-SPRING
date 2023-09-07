@@ -11,6 +11,4 @@ public class RestNotFoundException extends RuntimeException {
         super(message);
     }
     
-    
-
 }

@@ -1,20 +1,20 @@
 package br.com.fiap.Insight.ia.models;
 
-import java.util.List;
-
 import org.springframework.hateoas.EntityModel;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import br.com.fiap.Insight.ia.controllers.UsuarioController;
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -42,25 +42,22 @@ public class Usuario {
     @NotNull
     @Size(min = 1, max = 100)
     @Email
+    @Column(unique = true)
     private String email;
     
     @NotEmpty
     @NotNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Size(min = 5, max = 200)
     private String senha;
 
     @NotNull
-    private Double saldo;
+    private Double saldo = 100.0;
 
     @NotNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Enumerated(EnumType.STRING)
-    private Status status;
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.MERGE)
-    private List<Transacao> transacoes;
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.MERGE)
-    private List<Anuncio> anuncios;
+    private Status status = Status.ATIVO;
 
     public EntityModel<Usuario> toEntityModel(){
         return EntityModel.of(
