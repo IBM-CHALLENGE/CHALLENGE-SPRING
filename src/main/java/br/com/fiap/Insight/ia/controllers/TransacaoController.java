@@ -1,5 +1,7 @@
 package br.com.fiap.Insight.ia.controllers;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.Insight.ia.exception.RestNotFoundException;
+import br.com.fiap.Insight.ia.exception.RestValueInvalidException;
 import br.com.fiap.Insight.ia.models.Transacao;
 import br.com.fiap.Insight.ia.repository.TransacaoRepository;
 import jakarta.validation.Valid;
@@ -44,6 +47,10 @@ public class TransacaoController {
     public ResponseEntity<EntityModel<Transacao>> create(@RequestBody @Valid Transacao transacao) {
         log.info("Cadastrando transacao" + transacao);
         
+        if(transacao.getValor() <= 0.0){
+            throw new RestValueInvalidException("O valor da transacao deve ser maior que zero");
+        }
+
         repository.save(transacao);
 
         return ResponseEntity
@@ -56,7 +63,13 @@ public class TransacaoController {
         log.info("Buscando transacao com id " + id);
 
         return getTransacao(id).toEntityModel();
+    }
 
+    @GetMapping("/usuario/{idUsuario}")
+    public ResponseEntity<List<Transacao>> listByUsuario(@PathVariable Integer idUsuario){
+        log.info("Buscando transacoes do usuario com id " + idUsuario);
+
+        return ResponseEntity.ok(repository.findByUsuarioIdOrderByDataCadastroDesc(idUsuario));
     }
 
     // @DeleteMapping("{id}")
@@ -71,7 +84,9 @@ public class TransacaoController {
     // }
 
     private Transacao getTransacao(Integer id) {
-        return repository.findById(id).orElseThrow(() -> new RestNotFoundException("cadastro não encontrada"));
+        return repository
+            .findById(id)
+            .orElseThrow(() -> new RestNotFoundException("cadastro não encontrada"));
     }
 
 }

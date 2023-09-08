@@ -4,6 +4,9 @@ import java.util.Calendar;
 
 
 import org.springframework.hateoas.EntityModel;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -12,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 
 
 import br.com.fiap.Insight.ia.controllers.TransacaoController;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,7 +29,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// @EqualsAndHashCode(of = "id")
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -52,7 +54,9 @@ public class Transacao {
     @NotNull
     private Double valor;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @NotNull
+    @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Usuario usuario;
 
     public EntityModel<Transacao> toEntityModel(){

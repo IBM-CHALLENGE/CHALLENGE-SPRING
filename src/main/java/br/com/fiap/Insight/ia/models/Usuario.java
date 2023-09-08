@@ -52,7 +52,7 @@ public class Usuario {
     private String senha;
 
     @NotNull
-    private Double saldo = 100.0;
+    private Double saldo = 20.0;
 
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

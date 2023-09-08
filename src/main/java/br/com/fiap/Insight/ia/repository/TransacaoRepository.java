@@ -5,10 +5,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import br.com.fiap.Insight.ia.models.Transacao;
-import br.com.fiap.Insight.ia.models.Usuario;
 
 public interface TransacaoRepository extends JpaRepository<Transacao, Integer>{ 
 
-    List<Transacao> findByUsuario(Usuario usuario);
+    List<Transacao> findByUsuarioIdOrderByDataCadastroDesc(Integer idUsuario);
 
 }
