@@ -13,7 +13,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,13 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.Insight.ia.exception.RestConflictException;
-import br.com.fiap.Insight.ia.exception.RestNotFoundException;
 import br.com.fiap.Insight.ia.models.Credencial;
 import br.com.fiap.Insight.ia.models.Status;
 import br.com.fiap.Insight.ia.models.Token;
 import br.com.fiap.Insight.ia.models.Usuario;
 import br.com.fiap.Insight.ia.repository.UsuarioRepository;
 import br.com.fiap.Insight.ia.security.TokenService;
+import br.com.fiap.Insight.ia.services.AuthService;
 import jakarta.validation.Valid;
 
 @RestController
@@ -35,10 +34,11 @@ import jakarta.validation.Valid;
 public class UsuarioController {
 
     Logger log = LoggerFactory.getLogger(UsuarioController.class);
-
+    AuthService authService = new AuthService();
+    
     @Autowired
     UsuarioRepository repository;
-
+    
     @Autowired
     PagedResourcesAssembler<Object> assembler;
 
@@ -50,6 +50,7 @@ public class UsuarioController {
 
     @Autowired
     TokenService tokenService;
+
 
     @PostMapping("/cadastrar")
     public ResponseEntity<EntityModel<Usuario>> create(@RequestBody @Valid Usuario usuario) {
@@ -85,46 +86,43 @@ public class UsuarioController {
         }
     }
 
-    @GetMapping("{id}")
-    public EntityModel<Usuario> show(@PathVariable Integer id) {
-        log.info("Buscando tarefa com id " + id);
-        return getUsuario(id).toEntityModel();
-
+    @GetMapping
+    public EntityModel<Usuario> show() {
+    
+        return authService.getUsuarioLogado(repository).toEntityModel();
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Usuario> destroy(@PathVariable Integer id) {
-        log.info("Apagando usuario com id " + id);
-        Usuario usuario = getUsuario(id);
-        usuario.setStatus(Status.INATIVO);
+    @DeleteMapping
+    public ResponseEntity<Usuario> destroy() {
+        Usuario usuario = authService.getUsuarioLogado(repository);
 
+        usuario.setStatus(Status.INATIVO);
         repository.save(usuario);
 
         return ResponseEntity.noContent().build();
-
     }
 
-    @PutMapping("{id}")
-    public EntityModel<Usuario> update(@PathVariable Integer id, @RequestBody @Valid Usuario usuario) {
+    @PutMapping
+    public EntityModel<Usuario> update(@RequestBody @Valid Usuario usuario) {
         try {
-            log.info("Atualizando usuario com id " + id);
-            getUsuario(id);
-            usuario.setId(id);
-            repository.save(usuario);
+            Usuario usuarioLogado = authService.getUsuarioLogado(repository);
 
+            usuario.setId(usuarioLogado.getId());
+            usuario.setEmail(usuarioLogado.getEmail());
+            usuario.setSaldo(usuarioLogado.getSaldo());
+
+            if(usuario.getSenha().isEmpty())
+                usuario.setSenha(usuarioLogado.getSenha());
+            else
+                usuario.setSenha(encoder.encode(usuario.getSenha()));
+
+            repository.save(usuario);
             return usuario.toEntityModel();
 
         } catch (DataIntegrityViolationException e) {
             throw new RestConflictException("Já existe um usuario com este email");
         }
 
-    }
-
-    private Usuario getUsuario(Integer id) {
-        return repository
-                .findById(id)
-                .filter(usuario -> usuario.getStatus().equals(Status.ATIVO))
-                .orElseThrow(() -> new RestNotFoundException("Usuario não encontrada"));
     }
 
 }

@@ -5,11 +5,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,10 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.fiap.Insight.ia.exception.RestNotAuthorizedException;
 import br.com.fiap.Insight.ia.exception.RestNotFoundException;
 import br.com.fiap.Insight.ia.exception.RestValueInvalidException;
 import br.com.fiap.Insight.ia.models.Transacao;
+import br.com.fiap.Insight.ia.models.Usuario;
 import br.com.fiap.Insight.ia.repository.TransacaoRepository;
+import br.com.fiap.Insight.ia.repository.UsuarioRepository;
+import br.com.fiap.Insight.ia.services.AuthService;
 import jakarta.validation.Valid;
 
 @RestController
@@ -29,29 +30,34 @@ import jakarta.validation.Valid;
 public class TransacaoController {
 
     Logger log = LoggerFactory.getLogger(TransacaoController.class);
+    AuthService authService = new AuthService();
 
     @Autowired
     TransacaoRepository repository;
+    
+    @Autowired
+    UsuarioRepository usuarioRepository;
 
     @Autowired
     PagedResourcesAssembler<Object> assembler;
 
-    @GetMapping
-    public PagedModel<EntityModel<Object>> index(@PageableDefault(size = 5) Pageable pageable) {
-        var transacoes = repository.findAll(pageable);
-
-        return assembler.toModel(transacoes.map(Transacao::toEntityModel));
-    }
-
     @PostMapping
     public ResponseEntity<EntityModel<Transacao>> create(@RequestBody @Valid Transacao transacao) {
-        log.info("Cadastrando transacao" + transacao);
+       
+        Usuario usuarioLogado = authService.getUsuarioLogado(usuarioRepository);
+
+        if(transacao.getUsuario().getId() != usuarioLogado.getId()){
+            throw new RestNotAuthorizedException("Não é possivel cadastrar transacao para outro usuario");
+        }
         
         if(transacao.getValor() <= 0.0){
             throw new RestValueInvalidException("O valor da transacao deve ser maior que zero");
         }
 
+        usuarioLogado.setSaldo(usuarioLogado.getSaldo() + transacao.getValor());
+
         repository.save(transacao);
+        usuarioRepository.save(usuarioLogado);
 
         return ResponseEntity
                 .created(transacao.toEntityModel().getRequiredLink("self").toUri())
@@ -60,28 +66,22 @@ public class TransacaoController {
 
     @GetMapping("{id}")
     public EntityModel<Transacao> show(@PathVariable Integer id) {
-        log.info("Buscando transacao com id " + id);
+        
+        Transacao transacao = getTransacao(id);
+        Usuario usuario = authService.getUsuarioLogado(usuarioRepository);
 
-        return getTransacao(id).toEntityModel();
+        if(transacao.getUsuario().getId() != usuario.getId())
+            throw new RestNotAuthorizedException("Não é possivel buscar transacoes de outro usuario");
+
+        return transacao.toEntityModel();
     }
 
-    @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<List<Transacao>> listByUsuario(@PathVariable Integer idUsuario){
-        log.info("Buscando transacoes do usuario com id " + idUsuario);
+    @GetMapping("/usuario")
+    public ResponseEntity<List<Transacao>> listByUsuario(){
+        Usuario usuario = authService.getUsuarioLogado(usuarioRepository);
 
-        return ResponseEntity.ok(repository.findByUsuarioIdOrderByDataCadastroDesc(idUsuario));
+        return ResponseEntity.ok(repository.findByUsuarioIdOrderByDataCadastroDesc(usuario.getId()));
     }
-
-    // @DeleteMapping("{id}")
-    // public ResponseEntity<Transacao> destroy(@PathVariable Integer id) {
-    //     log.info("Apagando usuario com id " + id);
-    //     var transacao = getTransacao(id);
-
-    //     repository.delete(transacao);
-
-    //     return ResponseEntity.noContent().build();
-
-    // }
 
     private Transacao getTransacao(Integer id) {
         return repository

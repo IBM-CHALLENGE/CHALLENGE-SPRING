@@ -11,7 +11,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.domain.Pageable;
 
 
 import br.com.fiap.Insight.ia.controllers.TransacaoController;
@@ -62,8 +61,7 @@ public class Transacao {
     public EntityModel<Transacao> toEntityModel(){
         return EntityModel.of(
             this, 
-            linkTo(methodOn(TransacaoController.class).show(id)).withSelfRel(),
-            linkTo(methodOn(TransacaoController.class).index(Pageable.unpaged())).withRel("all")
+            linkTo(methodOn(TransacaoController.class).show(id)).withSelfRel()
         );
     }
 

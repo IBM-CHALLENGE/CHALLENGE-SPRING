@@ -67,9 +67,9 @@ public class Usuario implements UserDetails{
     public EntityModel<Usuario> toEntityModel(){
         return EntityModel.of(
             this, 
-            linkTo(methodOn(UsuarioController.class).show(id)).withSelfRel(),
-            linkTo(methodOn(UsuarioController.class).destroy(id)).withRel("delete"),
-            linkTo(methodOn(UsuarioController.class).update(id, this)).withRel("update")
+            linkTo(methodOn(UsuarioController.class).show()).withSelfRel(),
+            linkTo(methodOn(UsuarioController.class).destroy()).withRel("delete"),
+            linkTo(methodOn(UsuarioController.class).update(this)).withRel("update")
         );
     }
 
