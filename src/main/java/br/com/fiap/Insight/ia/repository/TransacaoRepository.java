@@ -8,6 +8,6 @@ import br.com.fiap.Insight.ia.models.Transacao;
 
 public interface TransacaoRepository extends JpaRepository<Transacao, Integer>{ 
 
-    List<Transacao> findByUsuarioId(Integer id);
+    List<Transacao> findByUsuarioIdOrderByDataCadastroDesc(Integer idUsuario);
 
 }
