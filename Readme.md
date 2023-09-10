@@ -1,6 +1,19 @@
 # Insight.ia
 Uma ferramenta para gerar anuncios
 
+## Banco de Dados
+Para criar as tabelas e estruturas necessárias do banco de dados, rodar o script do arquivo *create.sql* localizado na raiz do projeto
+
+## Variaveis de Ambiente
+Essas variaveis de ambiente são **obrigatórias** para uso da API e deploy para produção
+
+| Nome | Valor | Obrigatório |
+|------|-------|-------------|
+| API_KEY_OPENAI | Uma chave da OpenAI para utilização do ChatGPT | Sim |
+| ACTIVE_PROFILE | Possíveis valores: dev ou prod | Não |
+| DB_USER_FIAP | Username do banco de dados ORACLE | Somente caso ACTIVE_PROFILE tenha o valor prod |
+| DB_PASSWORD_FIAP | Senha do banco de dados ORACLE | Somente caso ACTIVE_PROFILE tenha o valor prod |
+
 ## Endpoints
 - Usuario
     - [Cadastrar](#cadastro)
@@ -24,13 +37,13 @@ Uma ferramenta para gerar anuncios
 
 ### Cadastro
 
-`POST` /Insight/api/usuario/cadastro
+`POST` /api/usuario/cadastrar
 
 |campo | tipo | obrigatório |descrição |
 |------|------|:-------------:|----------|
 |nome|String|sim|nome do usuário|
-|email|String|sim|email do usuário|
-|senha|String|sim|senha do usuário|
+|email|String|sim|email válido do usuário|
+|senha|String|sim|senha do usuário (tamanho minimo 5)|
 
 **Exemplo de corpo de requisição**
 
@@ -38,7 +51,7 @@ Uma ferramenta para gerar anuncios
 {
     "nome": "Pedro Henrique Vidal",
     "email": "rm93567@fiap.com.br",
-    "senha": "qwer"
+    "senha": "abc123"
 }
 ```
 
@@ -46,40 +59,16 @@ Uma ferramenta para gerar anuncios
 
 |código | descrição |
 |-|-
-|201 | cadastro concluido
+|201 | cadastro realizado
+|409 | email já cadastrado
 |400 | campos invalidos
 
 
 
-### RecuperarSenha
 
-`POST` /Insight/api/usuario/recuperarsenha
+### Login
 
-|campo | tipo | obrigatório |descrição |
-|------|------|:-------------:|----------|
-|Email | String | sim | Email do usuário |
-
-
-**Exemplo de corpo de requisição**
-
-```js
-{
-    "Email": "rm93567@fiap.com.br"
-}
-```
-
-**Respostas**
-
-|código | descrição |
-|-|-
-|200 | email de recuperação de senha enviado
-|400 | email invalido
-|400 | usuario não encontrado
-
-
-### Logar
-
-`POST` /Insight/api/usuario/logar
+`POST` /api/usuario/login
 
 |campo | tipo | obrigatório |descrição |
 |------|------|:-------------:|----------|
@@ -91,7 +80,7 @@ Uma ferramenta para gerar anuncios
 ```js
 {
     "email": "rm93567@fiap.com.br",
-    "Senha": "qwer"
+    "Senha": "abc123"
 }
 ```
 
@@ -99,8 +88,9 @@ Uma ferramenta para gerar anuncios
 
 ```js
 {
-    "Id": "01",
-    "Nome": "Pedro Vidal"
+	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJybTkzMDkwQGZpYXAuY29tLmJyIiwiaXNzIjoiSW5zaWdodC5pYSIsImV4cCI6MzE1NTY4ODk4NjQ0MDMxOTl9.iDH8at9EtMtrOxi21rIDY859KIfeD--69aABA9CsL9s",
+	"type": "JWT",
+	"prefix": "Bearer"
 }
 ```
 
@@ -108,11 +98,39 @@ Uma ferramenta para gerar anuncios
 
 |código | descrição |
 |-|-
-|200 | Login concluido
-|400 | Login invalido
+|200 | Token gerado
 |404 | Usuario não encontrado
 
 
+## Buscar Perfil
+
+`GET` /api/usuario
+
+**Exemplo de cabeçalho da requisição**
+
+```js
+{
+    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJybTkzMDkwQGZpYXAuY29tLmJyIiwiaXNzIjoiSW5zaWdodC5pYSIsImV4cCI6MzE1NTY4ODk4NjQ0MDMxOTl9.iDH8at9EtMtrOxi21rIDY859KIfeD--69aABA9CsL9s"
+}
+```
+
+**Exemplo de corpo de resposta**
+
+```js
+{
+	"id": 1,
+	"nome": "Gustavo Balero",
+	"email": "rm93090@fiap.com.br",
+	"saldo": 18.0
+}
+```
+
+**Respostas**
+
+|código | descrição |
+|-|-
+|200 | Token gerado
+|404 | Usuario não encontrado
 
 ### Editar
 
