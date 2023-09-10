@@ -34,7 +34,7 @@ public class AnuncioController {
 
     @Autowired
     AnuncioRepository repository;
-    
+
     @Autowired
     UsuarioRepository usuarioRepository;
 
@@ -44,28 +44,27 @@ public class AnuncioController {
     AuthService authService = new AuthService();
 
     @PostMapping
-        public ResponseEntity<EntityModel<Anuncio>> create(@RequestBody @Valid Anuncio anuncio){
+    public ResponseEntity<EntityModel<Anuncio>> create(@RequestBody @Valid Anuncio anuncio) {
         log.info("Cadastrando Anuncio" + anuncio);
 
-        if(anuncio.getUsuario().getId() != authService.getUsuarioLogado(usuarioRepository).getId()){
+        if (anuncio.getUsuario().getId() != authService.getUsuarioLogado(usuarioRepository).getId()) {
             throw new RestNotAuthorizedException("Não é possivel cadastrar anuncio para outro usuario");
         }
 
         repository.save(anuncio);
 
         return ResponseEntity
-            .created(anuncio.toEntityModel().getRequiredLink("self").toUri())
-            .body(anuncio.toEntityModel());
-        }
-
+                .created(anuncio.toEntityModel().getRequiredLink("self").toUri())
+                .body(anuncio.toEntityModel());
+    }
 
     @GetMapping("{id}")
-    public EntityModel<Anuncio> show(@PathVariable Integer id){
-        
+    public EntityModel<Anuncio> show(@PathVariable Integer id) {
+
         Anuncio anuncio = getAnuncio(id);
         Usuario usuarioLogado = authService.getUsuarioLogado(usuarioRepository);
 
-        if(anuncio.getUsuario().getId() != usuarioLogado.getId()){
+        if (anuncio.getUsuario().getId() != usuarioLogado.getId()) {
             throw new RestNotAuthorizedException("Não é possivel visualizar anuncio de outro usuario");
         }
 
@@ -74,27 +73,25 @@ public class AnuncioController {
     }
 
     @GetMapping("/usuario")
-    public ResponseEntity<List<Anuncio>> listByUsuario(){
+    public ResponseEntity<List<Anuncio>> listByUsuario() {
 
         Usuario usuario = authService.getUsuarioLogado(usuarioRepository);
 
         return ResponseEntity.ok(
                 repository
-                .findByUsuarioIdOrderByIdDesc(usuario.getId())
-                .stream()
-                .filter(anuncio -> anuncio.getStatus().equals(Status.ATIVO))
-                .toList()
-            );
+                        .findByUsuarioIdOrderByIdDesc(usuario.getId())
+                        .stream()
+                        .filter(anuncio -> anuncio.getStatus().equals(Status.ATIVO))
+                        .toList());
     }
 
-
     @DeleteMapping("{id}")
-    public ResponseEntity<Anuncio> destroy(@PathVariable Integer id){
-        
+    public ResponseEntity<Anuncio> destroy(@PathVariable Integer id) {
+
         Usuario usuarioLogado = authService.getUsuarioLogado(usuarioRepository);
         Anuncio anuncio = getAnuncio(id);
 
-        if(anuncio.getUsuario().getId() != usuarioLogado.getId()){
+        if (anuncio.getUsuario().getId() != usuarioLogado.getId()) {
             throw new RestNotAuthorizedException("Não é possivel excluir anuncio de outro usuario");
         }
 
@@ -104,7 +101,7 @@ public class AnuncioController {
         return ResponseEntity.noContent().build();
     }
 
-    private Anuncio getAnuncio(Integer id){
+    private Anuncio getAnuncio(Integer id) {
         return repository
                 .findById(id)
                 .filter(anuncio -> anuncio.getStatus().equals(Status.ATIVO))

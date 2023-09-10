@@ -1,12 +1,9 @@
 package br.com.fiap.Insight.ia.models;
 
 
-import org.springframework.hateoas.EntityModel;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-
-import br.com.fiap.Insight.ia.controllers.InsightController;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,28 +19,35 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Insight {
+public class Insight implements IChat{
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotBlank
+    @Column(length = 3000)
     private String conteudo;
 
     @NotBlank
+    @Column(length = 3000)
     private String imagem;
 
-    @NotBlank
     @NotNull
     @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Anuncio anuncio;
 
-    public EntityModel<Insight> toEntityModel(){
-        return EntityModel.of(
-            this, 
-            linkTo(methodOn(InsightController.class).show(id)).withSelfRel(),
-            linkTo(methodOn(InsightController.class).destroy(id)).withRel("delete"));
-            //linkTo(methodOn(InsightController.class)).index(Pageable.unpaged())).withRel("all");
+    @Override
+    public String getTipoMensagem() {
+        return this.getClass().getSimpleName();
     }
+
+    // public EntityModel<Insight> toEntityModel(){
+    //     return EntityModel.of(
+    //         this, 
+    //         linkTo(methodOn(InsightController.class).show(id)).withSelfRel(),
+    //         linkTo(methodOn(InsightController.class).destroy(id)).withRel("delete"));
+    //         linkTo(methodOn(InsightController.class)).index(Pageable.unpaged())).withRel("all");
+    // }
 }
