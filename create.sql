@@ -1,0 +1,10 @@
+create table anuncio (id number(10,0) generated as identity, descricao varchar2(100 char) not null, status varchar2(255 char) not null, usuario_id number(10,0) not null, primary key (id));
+create table comando (id number(10,0) generated as identity, conteudo varchar2(3000 char) not null, anuncio_id number(10,0) not null, primary key (id));
+create table insight (id number(10,0) generated as identity, conteudo varchar2(3000 char), imagem varchar2(3000 char), anuncio_id number(10,0) not null, primary key (id));
+create table transacao (id number(10,0) generated as identity, data_cadastro timestamp(6), descricao varchar2(255 char), titulo varchar2(255 char) not null, valor float(53) not null, usuario_id number(10,0) not null, primary key (id));
+create table usuario (id number(10,0) generated as identity, email varchar2(100 char) not null, nome varchar2(100 char) not null, saldo float(53) not null, senha varchar2(200 char) not null, status varchar2(255 char) not null, primary key (id));
+alter table usuario add constraint UK_5171l57faosmj8myawaucatdw unique (email);
+alter table anuncio add constraint FKeqe192g0tj782frjqmjvoqlvx foreign key (usuario_id) references usuario;
+alter table comando add constraint FK8n9je43vi1tpsdqhrmv036210 foreign key (anuncio_id) references anuncio;
+alter table insight add constraint FKra5ad6rhdqsg60k0gf81uhj3k foreign key (anuncio_id) references anuncio;
+alter table transacao add constraint FKnnwmcpelyv6nuwrwixo6ovuv1 foreign key (usuario_id) references usuario;
