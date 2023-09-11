@@ -26,7 +26,7 @@ import br.com.fiap.Insight.ia.services.AuthService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("api/transacao")
+@RequestMapping("/api/transacao")
 public class TransacaoController {
 
     Logger log = LoggerFactory.getLogger(TransacaoController.class);

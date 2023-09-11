@@ -30,7 +30,7 @@ import br.com.fiap.Insight.ia.services.AuthService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("api/usuario")
+@RequestMapping("/api/usuario")
 public class UsuarioController {
 
     Logger log = LoggerFactory.getLogger(UsuarioController.class);
