@@ -1,5 +1,7 @@
 package br.com.fiap.Insight.ia.controllers;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,12 @@ import br.com.fiap.Insight.ia.models.Usuario;
 import br.com.fiap.Insight.ia.repository.UsuarioRepository;
 import br.com.fiap.Insight.ia.security.TokenService;
 import br.com.fiap.Insight.ia.services.AuthService;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 
 @RestController
 @RequestMapping("/api/usuario")
@@ -35,10 +42,10 @@ public class UsuarioController {
 
     Logger log = LoggerFactory.getLogger(UsuarioController.class);
     AuthService authService = new AuthService();
-    
+
     @Autowired
     UsuarioRepository repository;
-    
+
     @Autowired
     PagedResourcesAssembler<Object> assembler;
 
@@ -50,7 +57,6 @@ public class UsuarioController {
 
     @Autowired
     TokenService tokenService;
-
 
     @PostMapping("/cadastrar")
     public ResponseEntity<EntityModel<Usuario>> create(@RequestBody @Valid Usuario usuario) {
@@ -78,7 +84,7 @@ public class UsuarioController {
             manager.authenticate(credencial.toAuthentication());
 
             var token = tokenService.generateToken(credencial);
-            
+
             return ResponseEntity.ok(token);
 
         } catch (BadCredentialsException e) {
@@ -88,7 +94,7 @@ public class UsuarioController {
 
     @GetMapping
     public EntityModel<Usuario> show() {
-    
+
         return authService.getUsuarioLogado(repository).toEntityModel();
     }
 
@@ -103,7 +109,7 @@ public class UsuarioController {
     }
 
     @PutMapping
-    public EntityModel<Usuario> update(@RequestBody @Valid Usuario usuario) {
+    public EntityModel<Usuario> update(@RequestBody Usuario usuario) {
         try {
             Usuario usuarioLogado = authService.getUsuarioLogado(repository);
 
@@ -111,10 +117,17 @@ public class UsuarioController {
             usuario.setEmail(usuarioLogado.getEmail());
             usuario.setSaldo(usuarioLogado.getSaldo());
 
-            if(usuario.getSenha().isEmpty())
+            if (usuario.getSenha().isEmpty())
                 usuario.setSenha(usuarioLogado.getSenha());
             else
                 usuario.setSenha(encoder.encode(usuario.getSenha()));
+
+            ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+            Validator validator = factory.getValidator();
+            Set<ConstraintViolation<Usuario>> violations = validator.validate(usuario);
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
 
             repository.save(usuario);
             return usuario.toEntityModel();
