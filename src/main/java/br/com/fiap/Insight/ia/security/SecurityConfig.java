@@ -33,10 +33,8 @@ public class SecurityConfig {
         corsConfiguration.addAllowedHeader("*");
 
         return http
-                .headers().frameOptions().sameOrigin()
-                .and()
-                .cors().configurationSource(request -> corsConfiguration)
-                .and()
+                .headers(headers -> headers.frameOptions().sameOrigin())
+                .cors(cors -> cors.configurationSource(request -> corsConfiguration))
                 .authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/api/usuario/cadastrar").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/usuario/login").permitAll()
@@ -45,10 +43,14 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
                 .and()
                 .csrf(csrf -> csrf.ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")))
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .formLogin().disable()
+                .csrf(csrf -> {
+                    try {
+                        csrf.disable().sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                })
+                .formLogin(login -> login.disable())
                 .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
