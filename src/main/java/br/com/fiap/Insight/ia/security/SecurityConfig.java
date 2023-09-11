@@ -36,13 +36,13 @@ public class SecurityConfig {
                 .headers(headers -> headers.frameOptions().sameOrigin())
                 .cors(cors -> cors.configurationSource(request -> corsConfiguration))
                 .authorizeHttpRequests()
-                // .requestMatchers(HttpMethod.POST, "/api/usuario/cadastrar").permitAll()
-                // .requestMatchers(HttpMethod.POST, "/api/usuario/login").permitAll()
-                // .requestMatchers(AntPathRequestMatcher.antMatcher("/error")).permitAll()
-                // .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
-                .anyRequest().permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/usuario/cadastrar").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/usuario/login").permitAll()
+                .requestMatchers(AntPathRequestMatcher.antMatcher("/error")).permitAll()
+                .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
+                .anyRequest().authenticated()
                 .and()
-                // .csrf(csrf -> csrf.ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")))
+                .csrf(csrf -> csrf.ignoringRequestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")))
                 .csrf(csrf -> {
                     try {
                         csrf.disable().sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
